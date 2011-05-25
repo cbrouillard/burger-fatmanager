@@ -17,9 +17,11 @@ import com.furiousadvancetracker.manager.SongEntry;
 import com.furiousadvancetracker.manager.V020Manager;
 import java.awt.BorderLayout;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.io.File;
 import javax.swing.DefaultListModel;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -37,9 +39,8 @@ import javax.swing.KeyStroke;
  * @author cyril
  */
 public class MainWindow extends JFrame {
-    
+
     private IManager v020Manager;
-    
     private JLabel actualFileTitle;
     private JList songList;
     private JButton addSong;
@@ -47,94 +48,105 @@ public class MainWindow extends JFrame {
     private JButton exportAll;
     private JButton deleteSelected;
     private JButton clearAll;
-    
+
     public MainWindow() {
-        
+
         v020Manager = new V020Manager();
-        
+
         setSize(400, 350);
         setTitle("Burger - [FAT] Manager");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         //setResizable(false);
-        
+
         setContentPane(buildContentPane());
         addMenu();
     }
-    
+
     private void addMenu() {
         JMenuBar menuBar = new JMenuBar();
         JMenu menuFile = new JMenu("File");
-        
+
         JMenuItem openSav = new JMenuItem(new MenuOpenv020SavAction(this, "Open v0.2.x .sav"));
         openSav.setAccelerator(KeyStroke.getKeyStroke("ctrl O"));
         menuFile.add(openSav);
-        
+
         menuFile.add(new JSeparator());
-        
-        JMenuItem saveSav = new JMenuItem (new MenuSavev020SavAction("Save v0.2.x .sav", this, v020Manager)); 
+
+        JMenuItem saveSav = new JMenuItem(new MenuSavev020SavAction("Save v0.2.x .sav", this, v020Manager));
         saveSav.setAccelerator(KeyStroke.getKeyStroke("ctrl S"));
         menuFile.add(saveSav);
-        
+
         menuFile.add(new JSeparator());
-        
+
         JMenuItem exit = new JMenuItem(new MenuExitAction());
         exit.setText("Exit");
         exit.setAccelerator(KeyStroke.getKeyStroke("ctrl W"));
         menuFile.add(exit);
-        
+
         menuBar.add(menuFile);
-        
+
         setJMenuBar(menuBar);
     }
-    
+
     private Container buildContentPane() {
         JPanel panel = new JPanel();
-        
+
         BorderLayout layout = new BorderLayout();
         panel.setLayout(layout);
-        
+
         actualFileTitle = new JLabel("File: no file selected");
         panel.add(actualFileTitle, BorderLayout.SOUTH);
-        
+
         songList = new JList();
         songList.setLayoutOrientation(JList.VERTICAL);
         JScrollPane scrollPaneForList = new JScrollPane(songList);
         panel.add(scrollPaneForList, BorderLayout.CENTER);
+
+        JPanel east = new JPanel();
+        east.setLayout(new BorderLayout());
         
-        JPanel east = new JPanel(new GridLayout(0,1));
+        JPanel btnsActions = new JPanel(new GridLayout(0, 1));
         
         exportAll = new JButton("Export all");
         exportAll.setEnabled(false);
-        east.add(exportAll);
-        
+        btnsActions.add(exportAll);
+
         exportSelected = new JButton("Export selected");
         exportSelected.setEnabled(false);
-        east.add(exportSelected);
-        
-        
+        btnsActions.add(exportSelected);
+
+
         deleteSelected = new JButton("Delete selected");
         deleteSelected.setEnabled(false);
-        east.add(deleteSelected);
-        
+        btnsActions.add(deleteSelected);
+
         clearAll = new JButton("Delete all");
         clearAll.setEnabled(false);
-        east.add(clearAll);
-        
+        btnsActions.add(clearAll);
+
         addSong = new JButton("Add a song");
         addSong.setEnabled(false);
-        east.add(addSong);
+        btnsActions.add(addSong);
+
+        ImageIcon myImage = new ImageIcon(MainWindow.class.getResource("furicat.png"));
+        JLabel myLabel = new JLabel();
+        myLabel.setHorizontalAlignment(JLabel.CENTER);
+        myLabel.setIcon(myImage);
+        
+        east.add(myLabel, BorderLayout.SOUTH);
+        east.add(btnsActions);
         
         panel.add(east, BorderLayout.EAST);
-        
+
         return panel;
     }
-    
+
     public void openv020SavFile(String filePath) {
         actualFileTitle.setText("File: " + filePath);
         v020Manager.eatFile(new File(filePath));
 
-        updateList (v020Manager);
-        
+        updateList(v020Manager);
+
         addSong.setEnabled(true);
         addSong.setAction(new AddSongAction("Add a song", songList, v020Manager, this));
         exportSelected.setEnabled(true);
@@ -146,8 +158,8 @@ public class MainWindow extends JFrame {
         clearAll.setEnabled(true);
         clearAll.setAction(new DeleteAllAction("Delete all", songList, v020Manager, this));
     }
-    
-    public void updateList (IManager songManager){
+
+    public void updateList(IManager songManager) {
         // modif's sur l'interface
         DefaultListModel model = new DefaultListModel();
         for (SongEntry song : songManager.getSongs()) {
@@ -159,5 +171,4 @@ public class MainWindow extends JFrame {
         }
         songList.setModel(model);
     }
-            
 }
