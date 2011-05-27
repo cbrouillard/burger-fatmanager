@@ -21,6 +21,7 @@ public class V020Manager implements IManager {
 
     private static int TABLE_SIZE = 3;
     private List<SongEntry> songs;
+    private static int FIRST_SONG_OFFSET = 0x0040;
 
     public void eatFile(File file) {
         RandomAccessFile reader = null;
@@ -68,33 +69,32 @@ public class V020Manager implements IManager {
         try {
             writer = new RandomAccessFile(file, "rw");
 
-            // la taille de la table d'allocation DOIT faire 16
+            // reinit de la table
             int cpt = 0;
             int offset = 0;
             while (cpt < TABLE_SIZE) {
-                SongEntry song = songs.get(cpt);
-                if (song.getData() != null) {
-                    writer.writeChar(song.getOffset());
-                    writer.writeChar(song.getSize());
-                } else {
-                    writer.writeChar(offset);
-                    writer.writeChar(0);
-                }
-                cpt++;
-                offset += 4;
-            }
-            while (cpt < 16) {
+
                 writer.writeChar(offset);
                 writer.writeChar(0);
-                offset += 4;
                 cpt++;
+                offset += 4;
             }
 
+            int offsetTable = 0;
+            int offsetSong = FIRST_SONG_OFFSET;
+
             for (SongEntry song : songs) {
-                if (song.getData()!=null){
-                    writer.seek(song.getOffset());
-                    writer.write(song.getData());
-                }
+
+                // ecriture dans la table d'alloc
+                writer.seek(offsetTable);
+                offsetTable += 4;
+                writer.writeChar(offsetSong);
+                writer.writeChar(song.getSize());
+
+                // ecriture de la song
+                writer.seek(offsetSong);
+                offsetSong += song.getSize();
+                writer.write(song.getData());
             }
 
         } catch (FileNotFoundException ex) {
@@ -110,7 +110,6 @@ public class V020Manager implements IManager {
                 }
             }
         }
-
     }
 
     private void readAllocationTable(RandomAccessFile file) throws IOException {
@@ -158,6 +157,8 @@ public class V020Manager implements IManager {
 
             return data;
 
+
+
         } catch (FileNotFoundException ex) {
             Logger.getLogger(V020Manager.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
@@ -166,6 +167,8 @@ public class V020Manager implements IManager {
             if (reader != null) {
                 try {
                     reader.close();
+
+
                 } catch (IOException ex) {
                     Logger.getLogger(V020Manager.class.getName()).log(Level.SEVERE, null, ex);
                 }

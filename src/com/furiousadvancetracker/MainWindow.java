@@ -17,7 +17,6 @@ import com.furiousadvancetracker.manager.SongEntry;
 import com.furiousadvancetracker.manager.V020Manager;
 import java.awt.BorderLayout;
 import java.awt.Container;
-import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.io.File;
 import javax.swing.DefaultListModel;
@@ -57,7 +56,7 @@ public class MainWindow extends JFrame {
         setTitle("Burger - [FAT] Manager");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         //setResizable(false);
-
+        
         setContentPane(buildContentPane());
         addMenu();
     }
@@ -84,6 +83,11 @@ public class MainWindow extends JFrame {
         menuFile.add(exit);
 
         menuBar.add(menuFile);
+        
+        JMenu menuSample = new JMenu("Samples");
+        menuSample.setEnabled(false);
+        
+        menuBar.add(menuSample);
 
         setJMenuBar(menuBar);
     }
